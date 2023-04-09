@@ -30,7 +30,7 @@ gcloud compute ssh --zone us-central1-a test-plumb --command="bash -s" <<'EOF'
                 first_char_type=${type:0:1}
                 substitute="CREATE $type IF NOT EXISTS $table"
                 sed -i "1s/.*/$substitute/" $user_path/export/$db/$table.sql
-                cp $user_path/export/$db/$table.sql $user_path/export/$db/$table.$first_char_type.sql
+                mv $user_path/export/$db/$table.sql $user_path/export/$db/$table.$first_char_type.sql
 
                 if [[ $type == "TABLE" ]]; then
                     query="SELECT * FROM $db.$table"         
@@ -46,7 +46,7 @@ gcloud compute ssh --zone us-central1-a test-plumb --command="bash -s" <<'EOF'
     tar cfz export.tgz export
 EOF
 
-gcloud compute scp --zone us-central1-a test-plumb:export.tgz export.tgz
+gcloud compute scp --zone us-central1-a --compress test-plumb:export.tgz export.tgz
 tar xvzf export.tgz
 
 cd export
