@@ -29,10 +29,13 @@ gcloud compute ssh --zone us-central1-a test-plumb --command="bash -s" <<'EOF'
                 type=$(head -n 1 $user_path/export/$db/$table.sql | awk '{print $2}')
                 first_char_type=${type:0:1}
                 substitute="CREATE $type IF NOT EXISTS $table"
-                sed -i "1s/.*/$substitute/" $user_path/export/$db/$table.$first_char_type.sql
+                sed -i "1s/.*/$substitute/" $user_path/export/$db/$table.sql
+                cp $user_path/export/$db/$table.sql $user_path/export/$db/$table.$first_char_type.sql
 
-                query="SELECT * FROM $db.$table"         
-                clickhouse client -q "${query}" --format CSV >> $user_path/export/$db/$table.csv     
+                if [[ $type == "TABLE" ]]; then
+                    query="SELECT * FROM $db.$table"         
+                    clickhouse client -q "${query}"  --format CSV >> $user_path/export/$db/$table.csv   
+                fi  
             done
 
             cd ..
